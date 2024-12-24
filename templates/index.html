@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>验证码验证</title>
+    <style>
+        /* 页面背景和字体设置 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f7; /* 背景色 */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* 使页面充满全屏 */
+            text-align: center;
+        }
+
+        /* 包装整个内容 */
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* 图片样式 */
+        img {
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 输入框样式 */
+        input {
+            font-size: 16px;
+            padding: 12px;
+            width: 80%;
+            margin-bottom: 20px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        /* 按钮样式 */
+        button {
+            font-size: 16px;
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* 验证结果样式 */
+        .message {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+
+        /* 换图按钮样式 */
+        .reload-btn {
+            margin-top: 20px;
+            background-color: #28a745;
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .reload-btn:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .reload-btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+
+<!-- 页面内容容器 -->
+<div class="container">
+    <h1>验证码验证</h1>
+
+    <!-- 显示验证码图片 -->
+    <img src="{{ captcha_image }}" alt="Captcha Image">
+
+    <!-- 输入框 -->
+    <div>
+        <input type="text" id="user_input" placeholder="请输入验证码" />
+        <button onclick="verifyCaptcha()">验证</button>
+    </div>
+
+    <!-- 显示验证结果 -->
+    <div id="result" class="message"></div>
+
+    <!-- 换图按钮 -->
+    <div>
+        <button class="reload-btn" onclick="reloadCaptcha()">换一张验证码</button>
+    </div>
+</div>
+
+<script>
+    // 提交验证码验证请求
+    function verifyCaptcha() {
+        var userInput = document.getElementById('user_input').value;
+        fetch('/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'user_input=' + encodeURIComponent(userInput)
+        })
+        .then(response => response.json())
+        .then(data => {
+            var resultDiv = document.getElementById('result');
+            if (data.status === 'success') {
+                resultDiv.style.color = 'green';
+                resultDiv.textContent = data.message;
+                resultDiv.className = "message success";
+            } else {
+                resultDiv.style.color = 'red';
+                resultDiv.textContent = data.message;
+                resultDiv.className = "message error";
+            }
+        });
+    }
+
+    // 换一张验证码
+    function reloadCaptcha() {
+        window.location.href = '/reload';  // 刷新验证码
+    }
+</script>
+
+</body>
+</html>
